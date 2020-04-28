@@ -10,27 +10,8 @@ const StyleModal = styled.div`
   font-size: 12px;
 `;
 
-const Close = styled.div`
-  cursor: pointer;
-  position: absolute;
-  display: block;
-  padding: 2px 5px;
-  line-height: 20px;
-  right: -10px;
-  top: -10px;
-  font-size: 24px;
-  background: #ffffff;
-  border-radius: 18px;
-  border: 1px solid #cfcece;
-`;
-
 export default props => (
   <StyleModal>
-    <Close>
-      <a Close onClick={props.close}>
-        &times;
-      </a>
-    </Close>
     <Tabs
       address={props.address}
       close={props.close}

@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import Popup from "reactjs-popup";
+import Modal from "styled-react-modal";
 import Review from "../Review/Review";
 import styled from "styled-components";
 import StarRatings from "react-star-ratings";
@@ -13,7 +13,9 @@ class SingleMapCard extends Component {
     this.state = {
       details: [],
       hours: [],
-      id: null
+      id: null,
+      isOpen: false,
+      opacity: 0
     };
   }
 
@@ -30,6 +32,7 @@ class SingleMapCard extends Component {
     service.getDetails(request, (place, status) => {
       if (status === google.maps.places.PlacesServiceStatus.OK) {
         this.setState({
+          ...this.state,
           details: [place.name, place.formatted_phone_number],
           hours: !place.opening_hours
             ? ["N/A"]
@@ -55,6 +58,23 @@ class SingleMapCard extends Component {
     this.props.map.setZoom(16);
   };
 
+  toggleModal = e => {
+    this.setState({ ...this.state, isOpen: !this.state.isOpen });
+  };
+
+  afterOpen = () => {
+    setTimeout(() => {
+      this.setState({ ...this.state, opacity: 1 });
+    }, 20);
+  };
+
+  beforeClose = () => {
+    return new Promise(resolve => {
+      this.setState({ ...this.state, opacity: 0 });
+      setTimeout(resolve, 200);
+    });
+  };
+
   render() {
     const location = this.props.location;
 
@@ -68,7 +88,6 @@ class SingleMapCard extends Component {
             <img src={location.icon} alt="Icon of the location" />
             <DetailContainer>
               <h2>{`${location.name}`}</h2>
-              {/* Placeholder rating */}
               <h4>
                 {`rating: ${location.rating} `}
                 <StarRatings
@@ -81,19 +100,25 @@ class SingleMapCard extends Component {
                 />
               </h4>
               <p>{`${location.address}`}</p>
-              <Popup modal trigger={<DetailButton>Details</DetailButton>}>
-                {close => (
-                  <Review
-                    close={close}
-                    onClick={this.requestDetails(location.id)}
-                    details={this.state.details}
-                    hours={this.state.hours}
-                    address={this.props.address}
-                    locationId={this.state.id}
-                    icon={location.icon}
-                  />
-                )}
-              </Popup>
+              <DetailButton onClick={this.toggleModal}>Details</DetailButton>
+              <StyledModal
+                isOpen={this.state.isOpen}
+                afterOpen={this.afterOpen}
+                beforeClose={this.beforeClose}
+                onBackgroundClick={this.toggleModal}
+                onEscapeKeydown={this.toggleModal}
+                opacity={this.opacity}
+                backgroundProps={{ opacity: this.state.opacity }}
+              >
+                <Review
+                  onClick={this.requestDetails(location.id)}
+                  details={this.state.details}
+                  hours={this.state.hours}
+                  address={this.props.address}
+                  locationId={this.state.id}
+                  icon={location.icon}
+                />
+              </StyledModal>
             </DetailContainer>
           </SingleMapCardContainer>
         ) : null}
@@ -161,5 +186,16 @@ const DetailButton = styled.button`
     box-shadow: 0px 5px 5px 0px rgba(176, 170, 176, 1);
     transform: translateY(-2px);
     transition: 0.2s;
+  }
+`;
+
+const StyledModal = Modal.styled`
+  max-width: 40rem;
+  opacity: ${props => props.opacity};
+  transition: opacity ease 1000ms;
+  border-radius: 30px;
+  
+  @media (min-width: 700px) {
+    width: 40rem;
   }
 `;

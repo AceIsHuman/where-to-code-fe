@@ -72,10 +72,7 @@ const TabsComponent = props => {
 
       <TabPanel>
         <NonAuthDetailsPanel
-          details={props.details}
-          hours={props.hours}
-          locationId={props.locationId}
-          icon={props.icon}
+        {...props}
         />
       </TabPanel>
       <TabPanel>

@@ -57,7 +57,7 @@ export const checkToken = () => dispatch => {
   axiosWithAuth()
     .get("/auth/info")
     .then(res => {
-      if (res.status < 200)
+      if (res.status === 200)
         dispatch({ type: LOGIN_SUCCESS, payload: res.data });
       else {
       }

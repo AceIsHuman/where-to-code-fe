@@ -1,8 +1,7 @@
 // IMPORTS
 import React from "react";
 import styled from "styled-components";
-import axios from "axios";
-// import { withFirebase } from "../../Firebase";
+import axiosWithAuth from "../../Helpers/axiosWithAuth";
 
 // STYLED COMPONENTS
 const StyleModal = styled.div`
@@ -88,20 +87,17 @@ display: flex;
 class AllReviewsPanel1 extends React.Component {
   state = {
     reviews: []
-    // uid: this.props.firebase.auth.currentUser.uid,
-    // u_id: null,
-    // loc_id: null
   };
 
   componentDidMount() {
     let locationReq = this.props.locationId;
     console.log("location id", locationReq);
-    return axios
-      .get(`https://wheretocode-master.herokuapp.com/locations/${locationReq}`)
+    return axiosWithAuth()
+      .get(`/locations/${locationReq}`)
       .then(res => {
         let locationId = res.data[0].id;
-        return axios.get(
-          `https://wheretocode-master.herokuapp.com/reviews/${locationId}/location`
+        return axiosWithAuth().get(
+          `/reviews/${locationId}/location`
         );
       })
       .then(res => {
@@ -131,12 +127,11 @@ class AllReviewsPanel1 extends React.Component {
           </StyleModal>
         ) : (
           <StyleModal>
-            <Header> Reviews </Header>
             <Content>
-              <ol className='ratingInfo'>
+              <ol className="ratingInfo">
                 {this.state.reviews[0].map((review, i) => (
                   <li key={review.ratingId}>
-                    <a href='#'>
+                    <a href="#">
                       Username:{review.userName} -- Overall Rating:{" "}
                       {review.rating} -- Internet Rating:{" "}
                       {review.internet_rating} -- Comments:{review.comments}{" "}

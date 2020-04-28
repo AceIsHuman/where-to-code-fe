@@ -1,14 +1,14 @@
 // IMPORTS
-import React from "react";
+import React, { useState } from "react";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import styled from "styled-components";
+import { connect } from "react-redux";
+import './Tabs.scss';
 
 // COMPONENTS
-
-import NonAuthDetailsPanel from './NonAuthDetailsPanel';
+import NonAuthDetailsPanel from "./NonAuthDetailsPanel";
 import { NonAuthAllReviewsPanel } from "./NonAuthAllReviews";
 import { ReviewPanel } from "./ReviewPanel";
-import { AuthUserContext } from "../Session/index";
 
 // STYLED COMPONENTS
 const StyledTabs = styled(Tabs)`
@@ -51,9 +51,13 @@ const Header = styled.div`
 `;
 // COMPONENT & EXPORT
 
-export default props => {
+const TabsComponent = props => {
+  const [tabIndex, setTabIndex] = useState(0);
   return (
-    <StyledTabs>
+    <StyledTabs
+      selectedIndex={tabIndex}
+      onSelect={tabIndex => setTabIndex(tabIndex)}
+    >
       <StyledTabList>
         <StyledTab>
           <p>Details</p>
@@ -73,29 +77,26 @@ export default props => {
           locationId={props.locationId}
           icon={props.icon}
         />
-
       </TabPanel>
       <TabPanel>
-
         <NonAuthAllReviewsPanel locationId={props.locationId} />
-
       </TabPanel>
       <TabPanel>
-        <AuthUserContext.Consumer>
-          {authUser =>
-            authUser ? (
-              <ReviewPanel
-                details={props.details}
-                address={props.address}
-                locationId={props.locationId}
-              />
-            ) : (
-                <Header>You Must Be Registered To Leave A Review</Header>
-
-              )
-          }
-        </AuthUserContext.Consumer>
+        {props.authUser ? (
+          <ReviewPanel
+            details={props.details}
+            address={props.address}
+            locationId={props.locationId}
+          />
+        ) : (
+          <Header>You Must Be Registered To Leave A Review</Header>
+        )}
       </TabPanel>
     </StyledTabs>
   );
 };
+
+export default connect(
+  ({ userReducer }) => ({ authUser: userReducer.loggedIn }),
+  null
+)(TabsComponent);

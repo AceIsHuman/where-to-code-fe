@@ -4,6 +4,8 @@ import styled from "styled-components";
 
 import RemoveOption from "./RemoveOption";
 
+import Directions from "./Directions";
+
 const LocationDetails = props => {
   const { location, visit } = props;
   const { name, address, icon, phone } = location || visit.location;
@@ -24,15 +26,7 @@ const LocationDetails = props => {
         <LocationName>{name}</LocationName>
         <address>{address}</address>
         <PhoneNumber href={`tel:${phone}`}>{phone}</PhoneNumber>
-        <DirectionsContainer>
-          <Directions
-            href={`https://www.google.com/maps/dir//${address}/`}
-            target="_blank"
-          >
-            {"Directions "}
-            <i className="fas fa-directions"></i>
-          </Directions>
-        </DirectionsContainer>
+        <Directions address={address} />
       </DetailsContainer>
       <ImageContainer>
         {!!icon ? <Image src={icon} /> : <i className="fas fa-store-alt fa-7x" />}
@@ -60,24 +54,6 @@ const LocationName = styled.h2`
 
 const PhoneNumber = styled.a`
   text-decoration: none;
-`;
-
-const DirectionsContainer = styled.div`
-  display: flex;
-  flex-flow: row-reverse;
-`;
-
-const Directions = styled.a`
-  color: black
-  text-decoration: none;
-  padding: 0.2rem 0.5rem;
-  background-color: gold;
-  border-radius: 5px;
-  font-weight: 500;
-
-  &&:hover {
-    background-color: yellow;
-  }
 `;
 
 const ImageContainer = styled.section`

@@ -114,7 +114,7 @@ class SingleMapCard extends Component {
                   onClick={this.requestDetails(location.id)}
                   details={this.state.details}
                   hours={this.state.hours}
-                  address={this.props.address}
+                  location={this.props.location}
                   locationId={this.state.id}
                   icon={location.icon}
                 />

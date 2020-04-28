@@ -12,13 +12,6 @@ const StyleModal = styled.div`
 
 export default props => (
   <StyleModal>
-    <Tabs
-      address={props.address}
-      close={props.close}
-      details={props.details}
-      hours={props.hours}
-      locationId={props.locationId}
-      icon={props.icon}
-    />
+    <Tabs {...props} />
   </StyleModal>
 );

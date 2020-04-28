@@ -1,9 +1,8 @@
 // IMPORTS
 import React, { Component } from "react";
 import styled from "styled-components";
-import axios from "axios";
-//import { distanceTo } from "geolocation-utils";
 import axiosWithAuth from "../../Helpers/axiosWithAuth";
+import { connect } from "react-redux";
 
 // COMPONENTS
 import NetworkModal from "../NetworkSpeed/networkModal";
@@ -12,7 +11,6 @@ import NetworkSpeed from "../NetworkSpeed/NetworkSpeed";
 import TextArea from "../Review/TextArea";
 import Select from "../Review/Select";
 import Button from "../Review/Button";
-// import { withFirebase } from "../../Firebase";
 
 /* global google */
 
@@ -56,7 +54,6 @@ const StyledForm = styled.form`
     margin: "10px 10px 10px 10px";
   }
 `;
-
 const NetworkTextStyle = styled.p`
   font-size: 20px;
   color: white;
@@ -64,21 +61,20 @@ const NetworkTextStyle = styled.p`
   letter-spacing: 3px;
 `;
 
-class ReviewPanel1 extends Component {
+class ReviewPanel extends Component {
   constructor(props) {
     super(props);
     // STATE
     this.state = {
-      newUser: {
-        user_id: null,
+      newReview: {
+        user_id: this.props.userId,
         rating: " ",
         internet_rating: " ",
         comments: "",
-        location_id: null
+        location_id: this.props.locationId
       },
       rating: ["1", "2", "3"],
       internet_rating: ["1", "2", "3"],
-      //uid: this.props.firebase.auth.currentUser.uid,
       submitted: false,
       network: false,
       distanceFromLocation: 100
@@ -89,96 +85,6 @@ class ReviewPanel1 extends Component {
     this.handleClearForm = this.handleClearForm.bind(this);
     this.handleInput = this.handleInput.bind(this);
   }
-  // COMPONENT
-  componentDidMount() {
-    console.log(this.props);
-    //Distance between user and review location, used for conditional render of button
-    const geocoder = new google.maps.Geocoder();
-
-    //Default to Sydney, Australia to match map default
-    let userCoords = [-33.856, 151.215];
-
-    //Check if user allowed location sharing
-    // if (navigator.geolocation) {
-    //   navigator.geolocation.getCurrentPosition(position => {
-    //     userCoords = [position.coords.latitude, position.coords.longitude];
-
-    //     geocoder.__proto__.geocode(
-    //       { address: this.props.address },
-    //       (res, err) => {
-    //         const locationCoords = [
-    //           res[0].geometry.location.lat(),
-    //           res[0].geometry.location.lng()
-    //         ];
-
-    //         this.setState(prevState => {
-    //           return {
-    //             ...prevState,
-    //             distanceFromLocation: distanceTo(userCoords, locationCoords)
-    //           };
-    //         });
-    //       }
-    //     );
-    //   });
-    // }
-
-    return axiosWithAuth()
-      .get(`https://wheretocode-master.herokuapp.com/users/${this.state.uid}`)
-      .then(user => {
-        let currentUserId = {
-          user_id: user.data[0].id,
-          rating: null,
-          internet_rating: null,
-          comments: ""
-        };
-        this.setState({
-          newUser: currentUserId
-        });
-      })
-      .then(res => {
-        let locationReq = this.props.locationId;
-        return axios.get(
-          `https://wheretocode-master.herokuapp.com/locations/${locationReq}`
-        );
-      })
-      .then(res => {
-        if (!res) {
-          let newLocation = [
-            {
-              locationName: this.props.details[0],
-              locationGoogleId: this.props.locationId
-            }
-          ];
-          return axios.post(
-            "https://wheretocode-master.herokuapp.com/locations",
-            newLocation
-          );
-        } else {
-          console.log("location does not need to be posted");
-        }
-      })
-      .then(res => {
-        let locationReq = this.props.locationId;
-        return axios.get(
-          `https://wheretocode-master.herokuapp.com/locations/${locationReq}`
-        );
-      })
-      .then(user => {
-        let currentUser = {
-          user_id: this.state.newUser.user_id,
-          rating: "",
-          internet_rating: "",
-          comments: "",
-          location_id: user.data[0].id
-        };
-        this.setState({
-          newUser: currentUser
-        });
-      })
-      .catch(err => {
-        console.log(err);
-      });
-  }
 
   // METHODS
   handleInput(e) {
@@ -186,8 +92,8 @@ class ReviewPanel1 extends Component {
     let name = e.target.name;
 
     this.setState(prevState => ({
-      newUser: {
-        ...prevState.newUser,
+      newReview: {
+        ...prevState.newReview,
         [name]: value
       }
     }));
@@ -196,8 +102,8 @@ class ReviewPanel1 extends Component {
   handleTextArea(e) {
     let value = e.target.value;
     this.setState(prevState => ({
-      newUser: {
-        ...prevState.newUser,
+      newReview: {
+        ...prevState.newReview,
         comments: value
       }
     }));
@@ -205,10 +111,9 @@ class ReviewPanel1 extends Component {
 
   handleFormSubmit(e) {
     e.preventDefault();
-    let userData = this.state.newUser;
+    let userData = this.state.newReview;
     axiosWithAuth()
-      .post("https://wheretocode-master.herokuapp.com/reviews", userData)
-      // .post(`http://localhost:8080/reviews`, userData)
+      .post("/reviews", userData)
       .then(res => {
         this.setState({ submitted: true });
       })
@@ -220,7 +125,7 @@ class ReviewPanel1 extends Component {
   handleClearForm(e) {
     e.preventDefault();
     this.setState({
-      newUser: {
+      newReview: {
         user_id: "",
         rating: " ",
         comments: "",
@@ -253,7 +158,7 @@ class ReviewPanel1 extends Component {
                   title={"Location Rating"}
                   name={"rating"}
                   options={this.state.rating}
-                  value={this.state.newUser.rating}
+                  value={this.state.newReview.rating}
                   placeholder={"Select Rating"}
                   handleChange={this.handleInput}
                 />
@@ -262,7 +167,7 @@ class ReviewPanel1 extends Component {
                   title={"Internet Rating"}
                   name={"internet_rating"}
                   options={this.state.internet_rating}
-                  value={this.state.newUser.internet_rating}
+                  value={this.state.newReview.internet_rating}
                   placeholder={"Select Internet Rating"}
                   handleChange={this.handleInput}
                 />
@@ -271,13 +176,13 @@ class ReviewPanel1 extends Component {
                   title={"Comments"}
                   rows={10}
                   cols={50}
-                  value={this.state.newUser.comments}
+                  value={this.state.newReview.comments}
                   name={"comment"}
                   handleChange={this.handleTextArea}
                   placeholder={"Leave a comment"}
                 />
                 {/*Submit */}
-                <div className='buttonContainer'>
+                <div className="buttonContainer">
                   <Button
                     action={this.handleFormSubmit}
                     type={"primary"}
@@ -297,13 +202,15 @@ class ReviewPanel1 extends Component {
               {this.state.network ? <NetworkSpeed /> : null}
             </div>
 
-            {// Only render network test option if user is within 100ft (30.48m) of location
-            this.state.distanceFromLocation <= 30.48 ? (
-              <NetworkModal
-                handleNetwork={this.toggleNetworkTest}
-                runTest={this.state.network}
-              />
-            ) : null}
+            {
+              // Only render network test option if user is within 100ft (30.48m) of location
+              this.state.distanceFromLocation <= 30.48 ? (
+                <NetworkModal
+                  handleNetwork={this.toggleNetworkTest}
+                  runTest={this.state.network}
+                />
+              ) : null
+            }
 
             <NetworkTextStyle>
               {this.state.distanceFromLocation > 30.48
@@ -321,5 +228,7 @@ class ReviewPanel1 extends Component {
   }
 }
 
-const ReviewPanel = ReviewPanel1;
-export { ReviewPanel };
+export default connect(
+  ({ userReducer }) => ({ userId: userReducer.userId }),
+  null
+)(ReviewPanel);

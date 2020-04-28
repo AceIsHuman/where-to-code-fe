@@ -8,7 +8,7 @@ import './Tabs.scss';
 // COMPONENTS
 import NonAuthDetailsPanel from "./NonAuthDetailsPanel";
 import { NonAuthAllReviewsPanel } from "./NonAuthAllReviews";
-import { ReviewPanel } from "./ReviewPanel";
+import ReviewPanel from "./ReviewPanel";
 
 // STYLED COMPONENTS
 const StyledTabs = styled(Tabs)`

@@ -3,6 +3,11 @@ import React from "react";
 import styled from "styled-components";
 import axiosWithAuth from "../../Helpers/axiosWithAuth";
 import StarRatings from "react-star-ratings";
+import Popup from "reactjs-popup";
+
+import CheckIn from "./CheckIn.js";
+import FavoriteLocation from "./FavoriteLocation.js";
+import Directions from "../Dashboard/Directions";
 
 // STYLED COMPONENTS
 const StyleModal = styled.div`
@@ -53,8 +58,7 @@ const ContentRight = styled.div`
   .name {
     padding-top: px;
   }
-  background-color: #111;
-  opacity: 0.45;
+  background-color: #959595;
 `;
 const ContentLeft = styled.div`
   display: flex;
@@ -84,63 +88,40 @@ const StyledFeatureReview = styled.div`
   display: flex;
   flex-direction: column;
 `;
+const Menu = styled.div`
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  color: black;
+`;
+const ExtrasContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  color: white;
+`;
 
 // COMPONENT
-class DetailsPanel1 extends React.Component {
+class DetailsPanel extends React.Component {
   // STATE
   state = {
-    review: [],
-    location_id: [],
-    location: this.props.locationId
+    review: []
   };
 
   componentDidUpdate(prevProps, nextState) {
     if (this.props.locationId !== prevProps.locationId) {
-      let locationReq = this.props.locationId;
-      return axiosWithAuth()
-        .get(`/locations/${locationReq}`)
-        .then(res => {
-          if (res.data.length === 0) {
-            let newLocation = [
-              {
-                googleId: this.props.locationId
-              }
-            ];
-            return axiosWithAuth().post("/locations", newLocation);
-          } else {
-            console.log("location does not need to be posted");
-          }
-        })
-        .then(res => {
-          let locationReq = this.props.locationId;
-          return axiosWithAuth().get(`/locations/${locationReq}`);
-        })
-        .then(res => {
-          let locationId = res.data[0].id;
-          return axiosWithAuth().get(`/reviews/${locationId}/location`);
-        })
-        .then(res => {
-          let newReview1 = res.data.slice(-1);
-          let newReview = newReview1[0];
-          this.setState({
-            review: newReview
-          });
-        })
-        .catch(error => {
-          console.log(error);
-        });
+      return this.grabReviews();
     }
   }
 
   // METHODS
   componentDidMount() {
-    let locationReq = this.props.locationId;
+    return this.grabReviews();
+  }
+
+  grabReviews() {
     return axiosWithAuth()
-      .get(`/locations/${locationReq}`)
-      .then(res => {
-        let locationId = res.data[0].id;
-        return axiosWithAuth.get(`/reviews/${locationId}/location`);
-      })
+      .get(`/reviews/${this.props.locationId}/location`)
       .then(res => {
         let newReview1 = res.data.slice(-1);
         let newReview = newReview1[0];
@@ -208,6 +189,17 @@ class DetailsPanel1 extends React.Component {
             </StyledFeatureReview>
           </ContentLeft>
           <ContentRight>
+            <ExtrasContainer>
+              <Popup
+                trigger={<i className="fas fa-ellipsis-h fa-2x"></i>}
+                position="bottom right"
+              >
+                <Menu>
+                  <CheckIn locationId={this.props.locationId} />
+                  <FavoriteLocation locationId={this.props.locationId} />
+                </Menu>
+              </Popup>
+            </ExtrasContainer>
             <h2 className="name">Name:</h2>
             <p style={{ fontSize: "20px" }}>{this.props.details[0]}</p>
             <h2>Phone:</h2>
@@ -224,6 +216,7 @@ class DetailsPanel1 extends React.Component {
                 })}
               </p>
             </ul>
+            <Directions address={this.props.location.address} />
           </ContentRight>
         </Content>
       </StyleModal>
@@ -231,5 +224,4 @@ class DetailsPanel1 extends React.Component {
   }
 }
 // EXPORT
-const NonAuthDetailsPanel = DetailsPanel1;
-export default NonAuthDetailsPanel;
+export default DetailsPanel;

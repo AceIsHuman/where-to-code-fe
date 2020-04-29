@@ -90,16 +90,8 @@ class AllReviewsPanel1 extends React.Component {
   };
 
   componentDidMount() {
-    let locationReq = this.props.locationId;
-    console.log("location id", locationReq);
     return axiosWithAuth()
-      .get(`/locations/${locationReq}`)
-      .then(res => {
-        let locationId = res.data[0].id;
-        return axiosWithAuth().get(
-          `/reviews/${locationId}/location`
-        );
-      })
+      .get(`/reviews/${this.props.locationId}/location`)
       .then(res => {
         if (res) {
           this.setState({

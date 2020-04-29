@@ -67,7 +67,7 @@ class ReviewPanel extends Component {
     // STATE
     this.state = {
       newReview: {
-        user_id: this.props.userId,
+        user_id: this.props.userID,
         rating: " ",
         internet_rating: " ",
         comments: "",
@@ -229,6 +229,6 @@ class ReviewPanel extends Component {
 }
 
 export default connect(
-  ({ userReducer }) => ({ userId: userReducer.userId }),
+  ({ userReducer }) => { console.log("userReducer", userReducer); return ({ userId: userReducer.userID })},
   null
 )(ReviewPanel);
